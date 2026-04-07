@@ -44,7 +44,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message... (Shift+Enter for new line)"
+            placeholder="输入消息... (Shift+Enter 换行)"
             className="w-full max-h-[200px] min-h-[44px] bg-transparent border-none outline-none resize-none px-3 py-2 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 leading-relaxed overflow-y-auto"
             rows={1}
             disabled={isLoading}
@@ -55,7 +55,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
           <button
             onClick={onStop}
             className="flex-shrink-0 p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors mb-1 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-            title="Stop generating"
+            title="停止生成"
           >
             <StopCircle className="w-6 h-6" />
           </button>
@@ -68,7 +68,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
                 ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
             }`}
-            title="Send message"
+            title="发送消息"
           >
             <Send className="w-6 h-6" />
           </button>

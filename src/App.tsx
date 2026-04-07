@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { MessageList } from './components/MessageList';
 import { ChatInput } from './components/ChatInput';
 import { SettingsModal } from './components/SettingsModal';
+import { TempAccountModal } from './components/TempAccountModal';
 import { useChat } from './hooks/useChat';
 import './App.css';
 
@@ -13,6 +14,7 @@ const DEFAULT_API_KEY = '';
 function App() {
   const { messages, isLoading, sendMessage, clearMessages, stopGeneration } = useChat();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isTempMailOpen, setIsTempMailOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('apiUrl') || DEFAULT_API_URL);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('apiKey') || DEFAULT_API_KEY);
 
@@ -35,6 +37,7 @@ function App() {
       <Header
         onClear={clearMessages}
         onSettingsClick={() => setIsSettingsOpen(true)}
+        onMailClick={() => setIsTempMailOpen(true)}
       />
       
       <main className="flex-1 overflow-hidden flex flex-col relative">
@@ -53,6 +56,11 @@ function App() {
         apiUrl={apiUrl}
         apiKey={apiKey}
         onSave={handleSaveSettings}
+      />
+
+      <TempAccountModal
+        isOpen={isTempMailOpen}
+        onClose={() => setIsTempMailOpen(false)}
       />
     </div>
   );

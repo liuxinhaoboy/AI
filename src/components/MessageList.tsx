@@ -21,9 +21,9 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading })
           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
             <span className="text-3xl text-blue-500">✨</span>
           </div>
-          <p className="text-lg font-medium">Hello! How can I help you today?</p>
+          <p className="text-lg font-medium">你好！今天我能为你做些什么？</p>
           <p className="text-sm mt-2 text-center max-w-sm">
-            You can ask me anything, from code explanations to general knowledge questions.
+            你可以问我任何问题，从代码解释到常识问题。
           </p>
         </div>
       ) : (
