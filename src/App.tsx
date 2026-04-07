@@ -12,7 +12,7 @@ const DEFAULT_API_URL = 'https://api.chatanywhere.tech/v1/chat/completions';
 const DEFAULT_API_KEY = '';
 
 function App() {
-  const { messages, isLoading, sendMessage, clearMessages, stopGeneration } = useChat();
+  const { messages, isLoading, sendMessage, regenerateMessage, clearMessages, stopGeneration } = useChat();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTempMailOpen, setIsTempMailOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('apiUrl') || DEFAULT_API_URL);
@@ -27,6 +27,10 @@ function App() {
     sendMessage(content, apiUrl, apiKey);
   };
 
+  const handleRegenerate = (id: string) => {
+    regenerateMessage(id, apiUrl, apiKey);
+  };
+
   const handleSaveSettings = (newUrl: string, newKey: string) => {
     setApiUrl(newUrl);
     setApiKey(newKey);
@@ -38,10 +42,11 @@ function App() {
         onClear={clearMessages}
         onSettingsClick={() => setIsSettingsOpen(true)}
         onMailClick={() => setIsTempMailOpen(true)}
+        messages={messages}
       />
       
       <main className="flex-1 overflow-hidden flex flex-col relative">
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList messages={messages} isLoading={isLoading} onRegenerate={handleRegenerate} />
       </main>
 
       <ChatInput

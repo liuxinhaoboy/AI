@@ -36,9 +36,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 md:p-4 pb-safe-bottom">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-t border-white/20 dark:border-gray-700/50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.2)] p-2 md:p-4 pb-safe-bottom z-50">
       <div className="max-w-4xl mx-auto flex items-end space-x-2">
-        <div className="flex-1 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all duration-200 p-2">
+        <div className="flex-1 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all duration-200 p-2">
           <textarea
             ref={textareaRef}
             value={input}
@@ -54,7 +54,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
         {isLoading ? (
           <button
             onClick={onStop}
-            className="flex-shrink-0 p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors mb-1 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+            className="flex-shrink-0 p-3 bg-red-500 hover:bg-red-600 text-white rounded-2xl shadow-lg shadow-red-500/30 transition-all hover:scale-105 active:scale-95 mb-1 focus:outline-none focus:ring-2 focus:ring-red-500/50"
             title="停止生成"
           >
             <StopCircle className="w-6 h-6" />
@@ -63,9 +63,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, onStop, isLoading 
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className={`flex-shrink-0 p-3 rounded-xl transition-colors mb-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+            className={`flex-shrink-0 p-3 rounded-2xl transition-all mb-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
               input.trim()
-                ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md'
+                ? 'bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
             }`}
             title="发送消息"

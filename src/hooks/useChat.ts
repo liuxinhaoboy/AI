@@ -4,6 +4,7 @@ import type { Message } from '../types/chat';
 const LOCAL_STORAGE_KEY = 'chat_messages';
 
 const BUILTIN_API_POOL = [
+  // 备用免费公共接口（请注意这些接口可能随时失效或需要自行申请免费 Key）
   { url: 'https://api.chatanywhere.tech/v1/chat/completions', key: 'sk-Vf2iM0zK5qL6X3B0A5R7E4N1C8T2Y9F6' },
   { url: 'https://api.chatanywhere.com.cn/v1/chat/completions', key: 'sk-Vf2iM0zK5qL6X3B0A5R7E4N1C8T2Y9F6' },
   { url: 'https://api.chatanywhere.cn/v1/chat/completions', key: 'sk-Vf2iM0zK5qL6X3B0A5R7E4N1C8T2Y9F6' }
@@ -14,10 +15,12 @@ export function useChat() {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
   });
+  const messagesRef = useRef<Message[]>(messages);
   const [isLoading, setIsLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    messagesRef.current = messages;
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
   }, [messages]);
 
@@ -33,17 +36,7 @@ export function useChat() {
     }
   }, []);
 
-  const sendMessage = useCallback(async (content: string, apiUrl?: string, apiKey?: string) => {
-    if (!content.trim()) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: content.trim(),
-      timestamp: Date.now(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+  const _sendMessageCore = async (currentMessages: Message[], newMessage: Message, apiUrl?: string, apiKey?: string) => {
     setIsLoading(true);
 
     const abortController = new AbortController();
@@ -70,7 +63,7 @@ export function useChat() {
     let success = false;
     let lastError: Error | null = null;
 
-    const requestMessages = [...messages, newMessage].map((m) => ({
+    const requestMessages = [...currentMessages, newMessage].map((m) => ({
       role: m.role,
       content: m.content,
     }));
@@ -176,15 +169,17 @@ export function useChat() {
         
         let errorMsg = lastError?.message || '无法连接到API，请检查网络或API Key设置。';
         if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-          errorMsg = '网络连接失败，请检查您的网络连接或确认目标 API 支持跨域请求 (CORS)。';
+          errorMsg = '网络连接失败，API节点可能已失效或不支持跨域请求 (CORS)。';
         }
+
+        const friendlyGuide = `\n\n**提示**: 内置免费节点当前不可用（可能已被限流或需要更新 Key）。\n您可以点击右上角 ⚙️ **设置**，配置您自己的 API Key。\n\n👉 推荐获取免费 Key 的渠道: \n1. [ChatAnywhere 免费获取](https://github.com/chatanywhere/GPT_API_free)\n2. [硅基流动 DeepSeek (赠送免费额度)](https://cloud.siliconflow.cn/)`;
 
         return [
           ...filteredMessages,
           {
             id: Date.now().toString(),
             role: 'system',
-            content: `请求失败: 所有可用节点均尝试失败。最后错误信息：${errorMsg}`,
+            content: `❌ **请求失败**: ${errorMsg}${friendlyGuide}`,
             timestamp: Date.now(),
           },
         ];
@@ -193,12 +188,51 @@ export function useChat() {
 
     setIsLoading(false);
     abortControllerRef.current = null;
-  }, [messages]);
+  };
+
+  const sendMessage = useCallback(async (content: string, apiUrl?: string, apiKey?: string) => {
+    if (!content.trim()) return;
+
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: content.trim(),
+      timestamp: Date.now(),
+    };
+
+    const currentMessages = messagesRef.current;
+    setMessages((prev) => [...prev, newMessage]);
+    
+    await _sendMessageCore(currentMessages, newMessage, apiUrl, apiKey);
+  }, []);
+
+  const regenerateMessage = useCallback(async (messageId: string, apiUrl?: string, apiKey?: string) => {
+    const currentMessages = messagesRef.current;
+    const msgIndex = currentMessages.findIndex(m => m.id === messageId);
+    if (msgIndex === -1) return;
+    
+    let userMsgIndex = -1;
+    for (let i = msgIndex - 1; i >= 0; i--) {
+      if (currentMessages[i].role === 'user') {
+        userMsgIndex = i;
+        break;
+      }
+    }
+    if (userMsgIndex === -1) return;
+
+    const userMessage = currentMessages[userMsgIndex];
+    const previousMessages = currentMessages.slice(0, userMsgIndex);
+    
+    setMessages([...previousMessages, userMessage]);
+    
+    await _sendMessageCore(previousMessages, userMessage, apiUrl, apiKey);
+  }, []);
 
   return {
     messages,
     isLoading,
     sendMessage,
+    regenerateMessage,
     clearMessages,
     stopGeneration,
   };
