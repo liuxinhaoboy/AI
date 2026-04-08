@@ -1,60 +1,32 @@
-import { useState, useEffect } from 'react';
-import { Header } from './components/Header';
-import { MessageList } from './components/MessageList';
-import { ChatInput } from './components/ChatInput';
-import { SettingsModal } from './components/SettingsModal';
-import { useChat } from './hooks/useChat';
-import './App.css';
-
-const DEFAULT_API_URL = 'https://api.chatanywhere.tech/v1/chat/completions';
-// Just a placeholder or public proxy key if applicable. Or let the user fill it.
-const DEFAULT_API_KEY = '';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { MainLayout } from './components/layout/MainLayout';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Courses from './pages/Courses';
+import Learn from './pages/Learn';
+import Community from './pages/Community';
+import Profile from './pages/Profile';
 
 function App() {
-  const { messages, isLoading, sendMessage, clearMessages, stopGeneration } = useChat();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('apiUrl') || DEFAULT_API_URL);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('apiKey') || DEFAULT_API_KEY);
-
-  useEffect(() => {
-    localStorage.setItem('apiUrl', apiUrl);
-    localStorage.setItem('apiKey', apiKey);
-  }, [apiUrl, apiKey]);
-
-  const handleSend = (content: string) => {
-    sendMessage(content, apiUrl, apiKey);
-  };
-
-  const handleSaveSettings = (newUrl: string, newKey: string) => {
-    setApiUrl(newUrl);
-    setApiKey(newKey);
-  };
-
   return (
-    <div className="flex flex-col h-screen w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
-      <Header
-        onClear={clearMessages}
-        onSettingsClick={() => setIsSettingsOpen(true)}
-      />
-      
-      <main className="flex-1 overflow-hidden flex flex-col relative">
-        <MessageList messages={messages} isLoading={isLoading} />
-      </main>
-
-      <ChatInput
-        onSend={handleSend}
-        onStop={stopGeneration}
-        isLoading={isLoading}
-      />
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        apiUrl={apiUrl}
-        apiKey={apiKey}
-        onSave={handleSaveSettings}
-      />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/learn/:courseId" element={<Learn />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
